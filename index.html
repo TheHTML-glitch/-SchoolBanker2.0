@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@SchoolBanker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: white;
+            border: 5px solid #000;
+        }
+        h1, h2, p {
+            color: #40E0D0;
+            text-align: center;
+        }
+        input, button {
+            margin: 5px;
+            padding: 10px;
+            width: 90%;
+            border: 2px solid #40E0D0;
+            border-radius: 5px;
+        }
+        input:focus, button:focus {
+            outline: none;
+            border-color: #008C8C;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+            text-align: center;
+        }
+        #bagListContainer {
+            display: none;
+        }
+        #developerSection {
+            margin-top: 20px;
+            text-align: center;
+        }
+        #contactInfo {
+            font-size: 1.2em;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>@SchoolBanker</h1>
+
+    <div id="loginForm">
+        <h2>Login</h2>
+        <input type="text" id="loginUsername" placeholder="Username">
+        <input type="password" id="loginPassword" placeholder="Password">
+        <button onclick="login()">Login</button>
+        <p>Don't have an account? <a href="#" onclick="toggleSignup()">Sign up</a></p>
+    </div>
+
+    <div id="signupForm">
+        <h2>Sign Up</h2>
+        <input type="text" id="signupUsername" placeholder="Username">
+        <input type="password" id="signupPassword" placeholder="Password">
+        <button onclick="signup()">Sign Up</button>
+        <p>Already have an account? <a href="#" onclick="toggleLogin()">Login</a></p>
+    </div>
+
+    <div id="bagListContainer">
+        <h2>Your School Bag List</h2>
+        <div>Your Points: <span id="points">100</span></div>
+        <input type="text" id="item" placeholder="Add an item">
+        <button onclick="addItem()">Add Item</button>
+        <button onclick="resetList()">Reset List</button>
+        <ul id="bagList"></ul>
+        <button onclick="logout()">Logout</button>
+    </div>
+
+    <div id="developerSection">
+        <h2>About the Developer</h2>
+        <p>Aadi Sreehari</p>
+        <p>Data Analysis Master</p>
+    </div>
+
+    <div id="contactInfo">
+        <h2>Need Help?</h2>
+        <p>Contact: <a href="mailto:aadistrehari2021@gmail.com">aadistrehari2021@gmail.com</a></p>
+    </div>
+
+    <script>
+        const users = JSON.parse(localStorage.getItem('users')) || {};
+        let currentUser = null;
+
+        function toggleSignup() {
+            document.getElementById('signupForm').style.display = 'block';
+            document.getElementById('loginForm').style.display = 'none';
+        }
+
+        function toggleLogin() {
+            document.getElementById('signupForm').style.display = 'none';
+            document.getElementById('loginForm').style.display = 'block';
+        }
+
+        function login() {
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+
+            if (users[username] && users[username].password === password) {
+                currentUser = username;
+                document.getElementById('loginForm').style.display = 'none';
+                document.getElementById('bagListContainer').style.display = 'block';
+                document.getElementById('points').innerText = users[username].points;
+                loadList();
+            } else {
+                alert('Invalid username or password');
+            }
+        }
+
+        function signup() {
+            const username = document.getElementById('signupUsername').value;
+            const password = document.getElementById('signupPassword').value;
+
+            if (!users[username]) {
+                users[username] = { password, points: 100, items: [] };
+                localStorage.setItem('users', JSON.stringify(users));
+                alert('Sign up successful! You can now log in.');
+                toggleLogin();
+            } else {
+                alert('Username already exists. Please choose another.');
+            }
+        }
+
+        function loadList() {
+            const items = users[currentUser].items;
+            const bagList = document.getElementById('bagList');
+            bagList.innerHTML = '';
+            items.forEach(item => {
+                const li = document.createElement('li');
+                li.textContent = item;
+                bagList.appendChild(li);
+            });
+        }
+
+        function addItem() {
+            const item = document.getElementById('item').value.trim();
+            if (item) {
+                users[currentUser].items.push(item);
+                localStorage.setItem('users', JSON.stringify(users));
+                document.getElementById('item').value = '';
+                loadList();
+            }
+        }
+
+        function resetList() {
+            users[currentUser].items = [];
+            localStorage.setItem('users', JSON.stringify(users));
+            loadList();
+        }
+
+        function logout() {
+            currentUser = null;
+            document.getElementById('bagListContainer').style.display = 'none';
+            document.getElementById('loginForm').style.display = 'block';
+        }
+
+        // Initialize the login form on page load
+        document.getElementById('loginForm').style.display = 'block';
+    </script>
+</body>
+</html>
